@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  {% if form.errors %}
+    <p>Seu nome de usuário e senha não bateram. Por favor tente de novo.</p>
+  {% endif %}
+
+  {% if next %}
+    {% if user.is_authenticated %}
+      <p>Your account doesn't have access to this page. To proceed,
+      please login with an account that has access.</p>
+    {% else %}
+      <p>Por favor, faça login para acessar essa página.</p>
+    {% endif %}
+  {% endif %}
+
+{% load widget_tweaks %}
+<div class="d-flex justify-content-center">
+<div class="text-center" style="width: 300px">
+  <form class="form-signin" data-bitwarden-watching="1" method="post" action="{% url 'login' %}">
+    {% csrf_token %}
+    <img class="mb-4" src="https://cdn.pixabay.com/photo/2020/08/25/19/01/broccoli-5517821_1280.png" alt="" width="72" height="72">
+    <h1 class="h3 mb-3 font-weight-normal">Entre em sua conta</h1>
+    <label for="inputEmail" class="sr-only">Nome de usuário</label>
+    {{ form.username|add_class:"form-control" }}
+    <label for="inputPassword" class="sr-only">Senha</label>
+    {{ form.password|add_class:"form-control" }}
+    <div class="checkbox mb-3">
+      <label>
+        <input type="checkbox" value="remember-me"> Lembrar neste computador
+      </label>
+    </div>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Entrar</button>
+  </form>
+</div>
+</div>
+
+
+{% endblock %}

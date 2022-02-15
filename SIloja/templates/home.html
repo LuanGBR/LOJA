@@ -1,0 +1,65 @@
+{% extends './base.html' %}
+{% load static %}
+{% block title %} Home {% endblock %}
+
+
+{% block content%}
+<div>
+<h3> Produtos </h3>
+</div>
+<div class="container">
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
+      {% for produto in produtos %}
+        <div class="col">
+        <div class="card shadow-sm">
+            <div style="height:200px; width:200px; display: block; margin-left: auto; margin-right: auto;">
+          <img style="height:90%; width:90%; display: block; margin-left: auto; margin-right: auto;"  src="{{produto.imagem.url}}"></img>
+            </div>
+          <div class="card-body">
+            <span class="fs-5 fw-semibold">{{produto.titulo}}</span>
+            <p class="card-text">{{produto.descricao}}</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <span id="preco_{{produto.id}}" class="font-weight-bold">{{produto.format_preco}}</span>
+                <div class="btn-group" style = "margin-right: 0">
+                    <form action="" method="POST">
+                        {% csrf_token %}
+                    <button name="produto" type="submit" value="{{produto.id}}" class="btn btn-sm btn-outline-danger">Comprar</button>
+                    <form>
+                </div>
+            </div>
+            <span class= "text-muted"> Qtd. {{produto.quantidade}}</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {{ room_name|json_script:"room-name" }}
+
+          
+      <script>
+
+        const Socket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/cart/'
+            + {{ user.id }}
+            + '/'
+        );
+    
+        Socket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            for(var i = 0; i < data.length; i++){
+                document.querySelector("#preco_"+data[i].pk).innerHTML="R$ " +  data[i].fields.preco.replace(".",",")
+            }
+            
+        };
+    
+        Socket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+            
+
+    
+    </script>
+{% endblock %}
+
