@@ -1,0 +1,115 @@
+{% extends './base.html' %}
+{% load static %}
+{% block title %} Carrinho {% endblock %}
+
+
+{% block content%}
+<section class="pt-5 pb-5">
+    <div class="container" style="max-width: 750px;">
+      <div class="row w-100">
+          <div class="col-lg-12 col-md-12 col-12">
+              <h3 class="display-5 mb-2 text-center">Carrinho de Compras</h3>
+              <p class="mb-5 text-center">
+                  <i class="text-info font-weight-bold">{{user.carrinho.count}} </i> itens no carrinho</p>
+              <table id="shoppingCart" class="table table-condensed table-responsive">
+                  <thead>
+                      <tr>
+                          <th style="width:60%">Produto</th>
+                          <th style="width:12%">Preço</th>
+                          <th style="width:10%">Quantidade</th>
+                          <th style="width:16%"></th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in items %}
+                      <tr>
+                          <td data-th="Product">
+                              <div class="row">
+                                  <div class="col-md-3 text-left">
+                                      <img src="{{item.produto.imagem.url}}" alt="" class="img-fluid d-none d-md-block rounded mb-2 shadow ">
+                                  </div>
+                                  <div class="col-md-9 text-left mt-sm-2">
+                                      <h4>{{ item.produto.titulo }}</h4>
+                                      <p class="font-weight-light">Brand &amp; Name</p>
+                                  </div>
+                              </div>
+                          </td>
+                          <td id="preco_{{item.produto.id}}" data-th="Price">{{ item.produto.format_preco }}</td>
+                          <td data-th="Quantity">
+                              <input  id="quantity_{{item.produto.id}}"  type="number" class="form-control form-control-lg text-center" value="{{item.quantidade}}">
+                          </td>
+                          <td class="actions" data-th="">
+                              <div class="text-right">
+                                  <form action="" method="POST">
+                                      {% csrf_token %}
+                                  <button name="menos" value="{{item.id}}" class="btn btn-white border-secondary bg-white btn-md mb-2">
+                                      <b>-</b>
+                                  </button>
+                                  <button name="mais" value="{{item.id}}" class="btn btn-white border-secondary bg-white btn-md mb-2">
+                                      <b>+</b>
+                                  </button>
+                                </form> 
+                              </div>
+                          </td>
+                      </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
+              <div class="float-right text-right">
+                  <h4>Subtotal:</h4>
+                  <h1 id="preco_total">{{user.carrinho.value_format}}</h1>
+              </div>
+          </div>
+      </div>
+      <div class="row mt-4 d-flex align-items-center">
+          <div class="col-sm-6 order-md-2 text-right">
+              <a href="catalog.html" class="btn btn-primary mb-4 btn-lg pl-5 pr-5">Finalizar compra</a>
+          </div>
+          <div class="col-sm-6 mb-3 mb-m-1 order-md-1 text-md-left">
+              <a href="/home">
+                  <i class="fas fa-arrow-left mr-2"></i> Continuar comprando</a>
+          </div>
+      </div>
+  </div>
+  </section>
+
+  <script>
+
+    const Socket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/cart/'
+        + {{ user.id }}
+        + '/'
+    );
+
+    Socket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        var total = 0.0;
+        for(var i = 0; i < data.length; i++){
+            try {
+                document.querySelector("#preco_"+data[i].pk).innerHTML="R$ " +  data[i].fields.preco.replace(".",",");
+                total = total + parseFloat(data[i].fields.preco) * document.querySelector("#quantity_"+data[i].pk).value;
+                
+            }
+            catch {
+                1;
+                }
+                
+            }
+            total = total.toFixed(2);
+            document.querySelector("#preco_total").innerHTML="R$ " +  (""+total).replace(".",",");
+            
+        
+    };
+
+    Socket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+        
+
+
+</script>
+
+{% endblock %}
+
