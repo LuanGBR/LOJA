@@ -3,6 +3,7 @@
 DEsenvolvimento de uma loja virtual com atualização periódica (7s) de preço via WebSockets.
 
 credenciais de teste:
+
 admin
 admin
 
